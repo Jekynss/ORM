@@ -30,14 +30,6 @@ class Table1<Model
 
 end
 
-class Table2<Model
-
- def read(*arg)
-   @bd.exec("select*from")
- end
-
-end
-
 model1=Model.new;
 #model1.create
 model1.read
