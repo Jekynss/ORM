@@ -43,4 +43,3 @@ model1=Model.new;
 model1.read
 model1.update
 model1.read
-puts 'hello'
