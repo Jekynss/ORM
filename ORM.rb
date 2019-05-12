@@ -1,7 +1,11 @@
 require 'pg'
 
 class Model
+   protected
    @bd
+   public
+   attr_read :id
+
    def initialize ()
      @bd=PG::Connection.open(dbname:'test')
      #@bd.exec(‘CREATE TABLE public.“Test1”(id SERIAL PRIMARY KEY ,Name text, Surname text,Age int);’)
@@ -23,11 +27,11 @@ class Model
    end
 end
 class Table1<Model
+  attr_accessor :name,:suname,:old
 
  def read(*arg)
    @bd.exec("select*from")
  end
-
 end
 
 model1=Model.new;
