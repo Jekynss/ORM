@@ -37,8 +37,13 @@ class Model
       puts "запись не создана"
     end
    end
-   def update(pk)
-     @bd.exec('update public."'+self.class.name+'" set'+ "#{@update_str} where id="+pk.to_s)
+   def update(new_params)
+    update_var(new_params)
+    unless @id.nil?
+     @bd.exec('update public."'+self.class.name+'" set'+ "#{@update_str} where id="+@id)
+    else
+    puts "Запись не создана"
+    end 
    end
    def delete()
      @bd.exec('delete from public."Test1"'+ "where id="+@id.to_s)
@@ -64,6 +69,10 @@ class Model
     @params.keys.each{|elem| @update_str+=" #{elem}=#{@values.split(',')[@params.keys.index elem]}, "}
     @update_str[@update_str.length-2]=""
    end
+   def update_var(new_params)
+   @params=new_params
+   make_good_strings
+   end
 end
 
 
@@ -76,6 +85,9 @@ class Test1<Model
     @age=params[:age]
     super
   end
+  def update
+    super(name:@name,surname:@surname,age:@age)
+  end
 end
 
 class Test2<Model
@@ -85,7 +97,10 @@ end
 t1=Test1.new(name:"JustName",surname:"Null",age:40)
 t1.create
 t1.read
-#t1.update(43)
-t1.delete
-t1.read_all
+t1.name="Test"
+t1.surname="Normal"
+t1.update()
+t1.read
+#t1.delete
+#t1.read_all
 
