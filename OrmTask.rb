@@ -48,6 +48,9 @@ end
 class Test1<Model
   attr_accessor :name,:surname,:age
   def initialize(params)
+    @name=params[:name]
+    @surname=params[:surname]
+    @age=params[:age]
     super
   end
 
@@ -58,6 +61,6 @@ end
 t1=Test1.new(name:"JustName",surname:"Null",age:40)
 t1.read
 #t1.create
-t1.update(19)
+t1.update(40)
 #t1.delete(29)
 t1.read
