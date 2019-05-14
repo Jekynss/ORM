@@ -54,25 +54,24 @@ class ApplicationRecord
       puts "запись не создана"
     end
    end
-
-   def make_good_strings
+   def make_good_strings(params=@params)
     @values=""
     @keys=""
     @update_str=""
 
 
-    @params.values.each do |elem| 
+    params.values.each do |elem| 
       if elem.is_a?String
         @values+="\'#{elem}\',"
       else
         @values+=elem.to_s+","
       end
     end
-    @params.keys.each{|elem| @keys+=elem.to_s+","}
+    params.keys.each{|elem| @keys+=elem.to_s+","}
     @keys[@keys.length-1]=""
     @values[@values.length-1]=""
 
-    @params.keys.each{|elem| @update_str+=" #{elem}=#{@values.split(',')[@params.keys.index elem]}, "}
+    params.keys.each{|elem| @update_str+=" #{elem}=#{@values.split(',')[params.keys.index elem]}, "}
     @update_str[@update_str.length-2]=""
    end
 end
@@ -83,6 +82,10 @@ class Test1<ApplicationRecord
   attr_accessor :name,:surname,:age
   def initialize(params)
     @params=params
+    @name=params[:name]
+    @surname=params[:surname]
+    @age=params[:age]
+    @id=params.values[3]
     super()
   end
   def name=(value)
@@ -101,6 +104,12 @@ class Test1<ApplicationRecord
      rows=$BD.exec('SELECT * from public."Test1" order by id asc')
      rows.each{|row| puts row}
      puts "-----------"
+  end
+
+  def self.find_by(param)
+     res=$BD.exec("SELECT * from public.\"Test1\" where #{param.keys[0]}='#{param.values[0]}' order by id asc")
+     retObj=Test1.new(res[0].keys[1].to_sym=>res[0].values[1].to_s,res[0].keys[2].to_sym=>res[0].values[2].to_s,res[0].keys[3].to_sym=>res[0].values[3].to_s,res[0].keys[0].to_sym=>res[0].values[0].to_s)
+
   end
 end
 
@@ -130,15 +139,17 @@ end
 #model1=ApplicationRecord.new;
 t1=Test1.new(name:"JustName",surname:"Null",age:40)
 t1.name="Text"
-t1.create
+#t1.create
 t1.read
 t1.name="Test"
 t1.age=100
 t1.update()
 t1.read
 #t1.delete
-Test1.read_all
+tobj=Test1.find_by(age:30)
+tobj.read
 
+Test1.read_all
 #t2=Test2.new(name:"NewTest",age:1)
 #t2.create
 #t2.read
