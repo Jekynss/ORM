@@ -62,16 +62,17 @@ class ApplicationRecord
     params.keys.each{|elem| @keys+= "#{elem},"}
     @keys[@keys.length-1] = ""
     @values[@values.length-1] = ""
-
     params.keys.each{|elem| @update_str+= " #{elem} = #{@values.split(',')[params.keys.index elem]}, "}
     @update_str[@update_str.length-2] = ""
   end
+
 end
 
 
 class Book<ApplicationRecord
   attr_reader :id
   attr_accessor :name,:surname,:age
+
   def initialize(params)
     @params = params
     @name = params[:name]
@@ -80,18 +81,22 @@ class Book<ApplicationRecord
     @id = params.values[3]
     super()
   end
+
   def name=(value)
     @name = value
     @params[:name] = @name
   end
+
   def surname=(value)
     @surname = value
     @params[:surname] = @surname
   end
+
   def age=(value)
     @age = value
     @params[:age] = @age
   end
+
   def self.read_all
     rows = $BD.exec('SELECT * from public."Books" order by id asc')
     rows.each{|row| puts row}
@@ -108,6 +113,7 @@ end
 class User<ApplicationRecord
   attr_reader :id
   attr_accessor :name,:age
+  
   def initialize(params)
     @params = params
     super()
