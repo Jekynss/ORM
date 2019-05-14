@@ -58,7 +58,7 @@ class ApplicationRecord
       else
         @values+= "#{elem},"
       end
-  end
+    end
     params.keys.each{|elem| @keys+= "#{elem},"}
     @keys[@keys.length-1] = ""
     @values[@values.length-1] = ""
