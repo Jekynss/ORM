@@ -1,52 +1,52 @@
 require 'pg'
 
-class Model
+class ApplicationRecord
    protected
    @bd
 
    public
-
-   def initialize (params)
+   def initialize ()
     @bd=PG::Connection.open(dbname:'test')
-    @params=params
-    make_good_strings
-     #@bd.exec(‘CREATE TABLE public.“Test1”(id SERIAL PRIMARY KEY ,Name text, Surname text,Age int);’)
+    @table_name='public."'+self.class.name+'"'
+    #make_good_strings
+    #@bd.exec('CREATE TABLE public."Test1"(id SERIAL PRIMARY KEY ,Name text, Surname text,Age int);')
    end
 
-   def read_all
-     rows=@bd.exec('SELECT * from public."'+self.class.name+'" order by id asc')
+   def  read_all
+       rows=@bd.exec('SELECT * from '+@table_name+' order by id asc')
      rows.each{|row| puts row}
      puts "-----------"
    end
 
    def create()
     if @id.nil?
-     @res=@bd.exec('INSERT INTO public."'+self.class.name+"\"(#{@keys})"+"VALUES (#{@values}) RETURNING id;")
+     make_good_strings
+     @res=@bd.exec('INSERT INTO '+@table_name+" (#{@keys})"+"VALUES (#{@values}) RETURNING id;")
      @id = @res.first['id']
     else
-    puts "Запись уже существует"
+    puts "Запись уже создана"
     end
    end
    def read()
     unless @id.nil?
-     rows=@bd.exec('SELECT * from public."'+self.class.name+"\" where id=#{@id} order by id asc")
+        rows=@bd.exec('SELECT * from '+@table_name+" where id=#{@id} order by id asc")
      rows.each{|row| puts row}
      puts "-----------"
 
     else
-      puts "запись не создана"
+      puts "Запись еще не создана"
     end
    end
-   def update(new_params)
-    update_var(new_params)
+   def update()
+    make_good_strings
     unless @id.nil?
-     @bd.exec('update public."'+self.class.name+'" set'+ "#{@update_str} where id="+@id)
+        @bd.exec('update '+@table_name+' set'+ "#{@update_str} where id="+@id)
     else
-    puts "Запись не создана"
+    puts "Запись еще не создана"
     end 
    end
    def delete()
-     @bd.exec('delete from public."Test1"'+ "where id="+@id.to_s)
+       @bd.exec('delete from '+@table_name+"where id="+@id.to_s)
      @id=nil
    end
 
@@ -54,6 +54,7 @@ class Model
     @values=""
     @keys=""
     @update_str=""
+
 
     @params.values.each do |elem| 
       if elem.is_a?String
@@ -69,36 +70,40 @@ class Model
     @params.keys.each{|elem| @update_str+=" #{elem}=#{@values.split(',')[@params.keys.index elem]}, "}
     @update_str[@update_str.length-2]=""
    end
-   def update_var(new_params)
-   @params=new_params
-   make_good_strings
-   end
 end
 
 
-class Test1<Model
+class Test1<ApplicationRecord
   attr_reader :id
   attr_accessor :name,:surname,:age
   def initialize(params)
-    @name=params[:name]
-    @surname=params[:surname]
-    @age=params[:age]
-    super
+    @params=params
+    super()
   end
-  def update
-    super(name:@name,surname:@surname,age:@age)
+  def name=(value)
+    @name=value
+    @params[:name]=@name
+  end
+  def surname=(value)
+    @surname=value
+    @params[:surname]=@surname
+  end
+  def age=(value)
+    @age=value
+    @params[:age]=@age
   end
 end
 
-class Test2<Model
+class Test2<ApplicationRecord
 end
 
-#model1=Model.new;
+#model1=ApplicationRecord.new;
 t1=Test1.new(name:"JustName",surname:"Null",age:40)
+t1.name="Text"
 t1.create
 t1.read
 t1.name="Test"
-t1.surname="Normal"
+t1.age=100
 t1.update()
 t1.read
 #t1.delete
