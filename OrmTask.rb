@@ -1,19 +1,20 @@
 require 'pg'
 
+$BD=PG::Connection.open(dbname:'test')
 class ApplicationRecord
    protected
-   @bd
+   #$BD
 
    public
    def initialize ()
-    @bd=PG::Connection.open(dbname:'test')
+    #$BD=PG::Connection.open(dbname:'test')
     @table_name='public."'+self.class.name+'"'
     #make_good_strings
-    #@bd.exec('CREATE TABLE public."Test1"(id SERIAL PRIMARY KEY ,Name text, Surname text,Age int);')
+    #$BD.exec('CREATE TABLE public."Test1"(id SERIAL PRIMARY KEY ,Name text, Surname text,Age int);')
    end
 
    def  read_all
-       rows=@bd.exec('SELECT * from '+@table_name+' order by id asc')
+       rows=$BD.exec('SELECT * from '+@table_name+' order by id asc')
      rows.each{|row| puts row}
      puts "-----------"
    end
@@ -21,7 +22,7 @@ class ApplicationRecord
    def create()
     if @id.nil?
      make_good_strings
-     @res=@bd.exec('INSERT INTO '+@table_name+" (#{@keys})"+"VALUES (#{@values}) RETURNING id;")
+     @res=$BD.exec('INSERT INTO '+@table_name+" (#{@keys})"+"VALUES (#{@values}) RETURNING id;")
      @id = @res.first['id']
     else
     puts "Запись уже создана"
@@ -29,9 +30,9 @@ class ApplicationRecord
    end
    def read()
     unless @id.nil?
-        rows=@bd.exec('SELECT * from '+@table_name+" where id=#{@id} order by id asc")
+        rows=$BD.exec('SELECT * from '+@table_name+" where id=#{@id} order by id asc")
      rows.each{|row| puts row}
-     puts "-----------"
+     puts "-----------"+$BDD.to_s
 
     else
       puts "Запись еще не создана"
@@ -40,14 +41,18 @@ class ApplicationRecord
    def update()
     make_good_strings
     unless @id.nil?
-        @bd.exec('update '+@table_name+' set'+ "#{@update_str} where id="+@id)
+        $BD.exec('update '+@table_name+' set'+ "#{@update_str} where id="+@id)
     else
     puts "Запись еще не создана"
     end 
    end
    def delete()
-       @bd.exec('delete from '+@table_name+"where id="+@id.to_s)
+    unless @id.nil?
+     $BD.exec('delete from '+@table_name+"where id="+@id.to_s)
      @id=nil
+    else
+      puts "запись не создана"
+    end
    end
 
    def make_good_strings
@@ -92,6 +97,11 @@ class Test1<ApplicationRecord
     @age=value
     @params[:age]=@age
   end
+  def self.read_all
+     rows=$BD.exec('SELECT * from public."Test1" order by id asc')
+     rows.each{|row| puts row}
+     puts "-----------"
+  end
 end
 
 class Test2<ApplicationRecord
@@ -100,6 +110,7 @@ end
 #model1=ApplicationRecord.new;
 t1=Test1.new(name:"JustName",surname:"Null",age:40)
 t1.name="Text"
+t1.delete
 t1.create
 t1.read
 t1.name="Test"
@@ -107,5 +118,5 @@ t1.age=100
 t1.update()
 t1.read
 #t1.delete
-#t1.read_all
+Test1.read_all
 
