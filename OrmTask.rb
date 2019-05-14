@@ -105,12 +105,31 @@ class Test1<ApplicationRecord
 end
 
 class Test2<ApplicationRecord
+  attr_reader :id
+  attr_accessor :name,:age
+  def initialize(params)
+    @params=params
+    super()
+  end
+
+  def name=(value)
+    @name=value
+    @params[:name]=@name
+  end
+  def age=(value)
+    @age=value
+    @params[:age]=@age
+  end
+  def self.read_all
+     rows=$BD.exec('SELECT * from public."Test2 " order by id asc')
+     rows.each{|row| puts row}
+     puts "-----------"
+  end
 end
 
 #model1=ApplicationRecord.new;
 t1=Test1.new(name:"JustName",surname:"Null",age:40)
 t1.name="Text"
-t1.delete
 t1.create
 t1.read
 t1.name="Test"
@@ -119,4 +138,9 @@ t1.update()
 t1.read
 #t1.delete
 Test1.read_all
+
+#t2=Test2.new(name:"NewTest",age:1)
+#t2.create
+#t2.read
+#Test2.read_all
 
