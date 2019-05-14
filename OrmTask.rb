@@ -113,7 +113,7 @@ end
 class User<ApplicationRecord
   attr_reader :id
   attr_accessor :name,:age
-  
+
   def initialize(params)
     @params = params
     super()
@@ -130,9 +130,9 @@ class User<ApplicationRecord
   end
 
   def self.read_all
-     rows = $BD.exec('SELECT * from public."Users" order by id asc')
-     rows.each{|row| puts row}
-     puts "-----------"
+    rows = $BD.exec('SELECT * from public."Users" order by id asc')
+    rows.each{|row| puts row}
+    puts "-----------"
   end
 
 end
